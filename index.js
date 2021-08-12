@@ -1,86 +1,134 @@
+// EXERCISES:
+
+//  1) When pressing on Load Images button, load the pictures from
+// https://api.pexels.com/v1/search?query=[your-query]   2) When pressing on Load Seconday Images, load the pictures from
+// https://api.pexels.com/v1/search?query=[your-secondary-query]
+
+// 3) The Edit button should be replaced with a "Hide" button.
+
+// 4) When the hide button is pressed, the whole picture card should disappear.
+
+// 5) Replace the "9 mins" string in the card template with the ID of the Image    6) Add in the "jumbotron" a search field. Use the value of the search field to search new images
+// and replace the existing ones.
+
+// [EXTRA]
+
+//         7) After every button is pressed, display an alert for 5 seconds the result of the operation (es.: 20
+// images loaded)
+
+// 8) Handle API errors gracefully, using alert components with the message inside
+
+// 9) Add at the bottom of the page a carousel with "forest" images loaded by another API call
+
+// 10) When the user clicks on the "VIEW" button inside the Card, open the specified image in a modal view
+
+// [EVEN MORE EXTRA]
+
+//         11) Use the map method to create from your pexel's response object an array containing just the url strings    12) Use filter to modify the result of the api call to filter only images from some specific authors
+// only ( you can choose which ones)
+
+// [HINTS]
+
+//         1.You can replace the images src for making your pictures appear on button click or you can use template literals to re-create all the cards from scratch.
+
+// 2.Use arrow functions to practice them
 
 window.onload = () => {
-    photoSection('Tigers')
-    let click1 = document.getElementsByClassName('btn-primary')[0]
-    let click2 =   document.getElementsByClassName('btn-success')[0]
-    click1.addEventListener('click', ()=>{
-        photoSection('Mountains')
-    })
-    click2.addEventListener('click', ()=>{
-        photoSection('cars')
-    })
-}
-const showModel = (e) => {
-   let url = e.target.closest('.card').children[0].src
-    const modelBody = document.querySelector('.modal-body')
-    const img = `<img src="${url}" width='100%' object-fit='cover'/>`
-    modelBody.innerHTML = img
-}
+  fetching("Lions");
+};
 
-
-const photoSection = function(query)
-      
-    {
-      
-      fetch(`https://api.pexels.com/v1/search?query=${query}`, {
-	"method": "GET",
-	"headers": {
-    "Authorization": "563492ad6f91700001000001a37e101a71da4ee5a27ddac8d09db960"
-	}
-}
-)
-.then(data => data.json())
-
-.then(response => {
-    console.log(response)
+const fetching = async (str) => {
+  fetch(`https://api.pexels.com/v1/search?query=${str}`, {
+    headers: {
+      Authorization: "563492ad6f91700001000001a37e101a71da4ee5a27ddac8d09db960",
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      dataArray = data.photos;
     
-    let positions = document.querySelectorAll('.card > svg')
-    //console.log("Hello Iam here",positions)
-    let existingImagetags = document.querySelectorAll('.card > img')
-    if(existingImagetags.length>0){
-        existingImagetags.forEach(element => {
-            element.remove()
-                });
+      if(data.photos.length>0){
+      loadimages(dataArray);
+      alert(`No of requested images available are, ${data.photos.length}`)
     }
-    positions.forEach(element => {
-    element.remove()
-        });
+      else{
+        let row = document.querySelector(".album .container .row");
+        row.innerHTML = `<div class="alert alert-danger" role="alert">
+       Apologies ... Your search request is not available!!
+      </div>`
+      }
+    });
+};
 
-    const divPositions = document.querySelectorAll('.card')
-        console.log(divPositions)
-    divPositions.forEach((ele,inde) => {
-    let imageTag = document.createElement('img')
-    imageTag.setAttribute('src', response.photos[inde].src.tiny)
-    ele.prepend(imageTag)
-    })
+const modalfunc = (e) =>{
+  let modalbody = document.querySelector('.modal-body')
 
-    let viewButton = document.querySelectorAll('.btn-group > button')
-    viewButton.forEach((ele, ind) => {
-        if(ind % 2 === 0)
-        {
-           ele.setAttribute('data-toggle', 'modal')
-           ele.setAttribute('data-target', '#exampleModal' )
-           
-            ele.addEventListener('click', (e)=>showModel(e))
-        }
-    })
+ let imgsrc = e.target.closest('.card').firstElementChild.src
+ let modaltitle = document.querySelector('#staticBackdropLabel')
+ let id = e.target.closest(".card-body").children[1].children[1].innerText
+ modaltitle.innerText = 'ID: ' + id
+ modalbody.innerText = 'Hello Iam there' 
 
-    let HideButton = document.querySelectorAll('.btn-group > button')
-    HideButton.forEach((ele,ind) => {
-        if(ind % 2 !== 0)
-        {
-            ele.innerText = `Hide`
-            ele.addEventListener('click', (e) => {
-                    let p = e.target.closest('.card')
-                    p.remove()
-            })
-        }
-    })
+ }
 
-})
-
-
-.catch(err => console.log(err))
+ let field;
+ const handlesearch = (e) => {
+  field = e.target.value.toLowerCase()
   
-    }
+  
+ }
+
+ const loadsearchImages = (query) => {
+      fetching(query)
+ }
+
+const loadimages = (arr) => {
+  let row = document.querySelector(".album .container .row");
+  row.innerHTML = "";
+  arr.forEach((element) => {
+    row.innerHTML += `<div class="col-md-4">
+        <div class="card mb-4 shadow">
+          <img src='${element.src.tiny}' class='img-fluid'>
+            <title>Placeholder</title>
+            <rect width="100%" height="100%" fill="#55595c" />
+            
+          
+          <div class="card-body">
+            <p class="card-text">
+              This is a wider card with supporting text below as a natural
+              lead-in to additional content. This content is a little bit
+              longer.
+            </p>
+            <div
+              class="d-flex justify-content-between align-items-center"
+            >
+              <div class="btn-group">
+              <button type="button"
+              onclick = "modalfunc(event)" 
+              class="btn btn-sm btn-outline-secondary" 
+              data-toggle="modal" 
+              data-target="#staticBackdrop">
+               view
+              </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary hide"
+                >
+                  Hide
+                </button>
+              </div>
+              <small class="text-muted">${element.id}</small>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  });
+  let hide = document.querySelectorAll(".btn-group .hide");
+  hide.forEach((ele) => {
+    let parent = ele.parentNode.parentNode.parentNode.parentNode.parentNode;
     
+    ele.addEventListener("click", () => {
+      parent.remove()
+    });
+  });
+};
